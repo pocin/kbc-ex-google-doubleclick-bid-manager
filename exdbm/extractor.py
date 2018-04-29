@@ -81,8 +81,8 @@ def validate_extractor_params(params):
 def main(datadir, credentials, params):
     params_cleaned = validate_extractor_params(params)
     ex = DBMExtractor(**credentials)
-    outpath = Path(datadir) / 'out/tables/lineitems_export.csv'
     config_lineitems = params_cleaned['lineItems']
+    outpath = Path(datadir) / 'out/tables/{}.csv'.format(config_lineitems['filterType'].lower())
     ex.download_and_clean_lineitems(outpath,
                                     config_lineitems['filterType'],
                                     config_lineitems.get('filterIds'))
