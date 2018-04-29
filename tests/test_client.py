@@ -1,6 +1,6 @@
 import os
 import pytest
-from wrdbm.writer import DBMWriter
+from exdbm.extractor import DBMExtractor
 import csv
 
 CREDENTIALS = {
@@ -11,41 +11,34 @@ CREDENTIALS = {
 
 
 def test_creating_authenticated_client_from_refresh_token():
-    dbmc = DBMWriter(**CREDENTIALS)
+    dbmc = DBMExtractor(**CREDENTIALS)
     assert isinstance(dbmc.access_token, str)
 
+def test_downloading_lineitems(tmpdir):
+    outpath = tmpdir.join('lineitems.csv')
+    ex = DBMExtractor(**CREDENTIALS)
+    outpath_ = ex.download_and_clean_lineitems(
+        outpath.strpath,
+        filter_type='LINE_ITEM_ID',
+        filter_ids=[1576228])
+    with open(outpath_) as out:
+        first_line = next(csv.DictReader(out))
+        assert first_line['Line Item Id'] == str(1576228)
 
-def test_writing_ok_response_to_csv(tmpdir):
-    fake_response = {
-        "uploadStatus": {
-            "errors": None, #TODO: HOW DOES ERR RESP LOOK LIKE
-            "rowStatus": [{
-                "rowNumber": 1,
-                "entityId": 12,
-                "entityName": "string",
-                "changed": True,
-                "persisted": True,
-                "errors": ["foo"]
-            }]
-        }
-    }
-    outpath = (tmpdir.mkdir('out')
-                     .mkdir('files')
-                     .join('line_items_status.csv'))
+def test_converting_lineitems_json_to_csv(tmpdir):
 
-    real_outpath = DBMWriter.lineitems_response_to_csv(
-        resp_json=fake_response,
-        outpath=outpath.strpath)
+    infile = tmpdir.join("lineitems_input.json")
+    infile.write(r'{"lineItems": "columnA,columnB\n\"value\",value2"}')
+    outfile = tmpdir.join("outfile.csv")
 
-    assert os.path.isfile(real_outpath)
-    assert real_outpath == outpath.strpath
-    header = fake_response['uploadStatus']['rowStatus'][0].keys()
-    with open(real_outpath) as inf:
-        reader = csv.DictReader(
-            inf,)
-            # fieldnames=header)
+    DBMExtractor._clean_lineitems_response_via_ijson(infile.strpath, outfile.strpath)
 
-        first_row = next(reader)
-        assert first_row['entityId'] == "12"
+    with open(outfile.strpath) as inf:
+        reader = csv.DictReader(inf)
+        first_line = next(reader)
+        assert first_line['columnA'] == 'value'
+        assert first_line['columnB'] == 'value2'
+        assert len(first_line.keys()) == 2
         with pytest.raises(StopIteration):
             next(reader)
+

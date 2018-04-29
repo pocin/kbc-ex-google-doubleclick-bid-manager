@@ -3,7 +3,7 @@ services:
   # for development purposes
   dev:
     build: .
-    image: "pocin/kbc-wr-google-doubleclick-bid-manager:dev"
+    image: "pocin/kbc-ex-google-doubleclick-bid-manager:dev"
     env_file:
       - .env
     volumes:

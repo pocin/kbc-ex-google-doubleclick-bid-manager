@@ -1,6 +1,6 @@
 """extractor
 """
-from wrdbm.client import DBMClient
+from exdbm.client import DBMClient
 import random
 from pathlib import Path
 import ijson
@@ -27,6 +27,7 @@ class DBMExtractor(DBMClient):
             for item in ijson.items(f, 'lineItems'):
                 with open(outpath, 'w') as fout:
                     fout.write(item)
+        return outpath
 
     @staticmethod
     def _clean_lineitems_response(inpath, outpath):
