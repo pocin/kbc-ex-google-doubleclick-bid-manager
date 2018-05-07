@@ -3,8 +3,10 @@
 from exdbm.client import DBMClient
 import random
 from pathlib import Path
+import json
 import ijson
 import voluptuous as vp
+import logging
 
 
 class DBMExtractor(DBMClient):
@@ -77,6 +79,20 @@ def validate_extractor_params(params):
     )
     return schema(params)
 
+def columnize_filter_type(word):
+    """
+    >>> filter_type_to_column_name("LINE_ITEM_ID")
+    "Line_Item_Id"
+
+    The api returns columns like "Line Item Id"
+    in storage this will be "Line_Item_Id"
+    """
+    return '_'.join(map(lambda w: w.capitalize(), word.split('_')))
+
+def write_manifest(outpath, manifest):
+    logging.debug("Writing manifest %s", outpath)
+    with open(outpath, 'w') as outf:
+        json.dump(manifest, outf)
 
 def main(datadir, credentials, params):
     params_cleaned = validate_extractor_params(params)
@@ -87,4 +103,12 @@ def main(datadir, credentials, params):
                                     config_lineitems['filterType'],
                                     config_lineitems.get('filterIds'))
 
+    manifest_path = str(outpath) + '.manifest'
+    write_manifest(
+        manifest_path,
+        {
+            "incremental": True,
+            "primary_key": columnize_filter_type(config_lineitems['filterType'])
+        }
+    )
 
