@@ -1,4 +1,7 @@
 # Keboola writer for Google Doubleclick Bid Manager
+---
+[![Build Status](https://travis-ci.org/pocin/kbc-ex-google-doubleclick-bid-manager.svg?branch=master)](https://travis-ci.org/pocin/kbc-ex-google-doubleclick-bid-manager)
+----
 
 This component is still under development
 
