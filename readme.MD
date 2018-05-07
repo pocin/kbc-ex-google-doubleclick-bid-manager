@@ -24,7 +24,7 @@ Optional `config.json`
 - `filterType` is one of `"ADVERTISER_ID", "INSERTION_ORDER_ID", "LINE_ITEM_ID"`
 - `filterIds` is an array of integers. Omit if you want to download all items
 
-the table will be downloaded to `/data/out/tables/{filterType}.csv`
+the table will be downloaded to `/data/out/tables/{filterType}.csv` (incremental loading is turned on)
 
 # Development
 
