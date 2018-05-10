@@ -12,10 +12,12 @@ Uses this endpoint https://developers.google.com/bid-manager/v1/lineitems/downlo
 ```javascript
 {
   "extract": {
-    "lineItems": {
-      "filterType": "LINE_ITEM_ID",
-      "filterIds": [1,2,3]
+    "lineItems": [
+      {
+        "filterType": "LINE_ITEM_ID",
+        "filterIds": [1,2,3]
       }
+    ]
     }
 }
 
