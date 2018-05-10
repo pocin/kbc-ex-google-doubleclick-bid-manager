@@ -4,6 +4,7 @@ import sys
 import requests
 from keboola.docker import Config
 import exdbm.extractor
+import voluptuous as vp
 
 if __name__ == '__main__':
     try:
@@ -20,9 +21,8 @@ if __name__ == '__main__':
             'client_secret': config.get_oauthapi_appsecret(),
             'refresh_token': config.get_oauthapi_data()['refresh_token']
         }
-        logging.info(credentials)
         exdbm.extractor.main(datadir, credentials, params)
-    except ValueError:
+    except (ValueError, KeyError, vp.MultipleInvalid):
         logging.error(err)
         sys.exit(1)
     except requests.HTTPError as err:

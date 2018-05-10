@@ -97,7 +97,7 @@ def write_manifest(outpath, manifest):
 def main(datadir, credentials, params):
     params_cleaned = validate_extractor_params(params)
     ex = DBMExtractor(**credentials)
-    config_lineitems = params_cleaned['lineItems']
+    config_lineitems = params_cleaned['extract']['lineItems']
     outpath = Path(datadir) / 'out/tables/{}.csv'.format(config_lineitems['filterType'].lower())
     ex.download_and_clean_lineitems(outpath,
                                     config_lineitems['filterType'],
