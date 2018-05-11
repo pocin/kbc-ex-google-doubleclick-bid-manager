@@ -111,7 +111,7 @@ def main(datadir, credentials, params):
             manifest_path,
             {
                 "incremental": True,
-                "primary_key": columnize_filter_type(config_lineitems['filterType'])
+                "primary_key": [columnize_filter_type(config_lineitems['filterType'])]
             }
         )
 
