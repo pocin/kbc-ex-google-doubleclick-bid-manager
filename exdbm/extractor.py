@@ -60,7 +60,7 @@ class DBMExtractor(DBMClient):
         return outpath
 
     def download_and_clean_lineitems(self, outpath, filter_type, filter_ids=None):
-        tmp_outpath = '/tmp/temp_{}_raw_lineitems.json'.format(random.randint(0,999999))
+        tmp_outpath = '/tmp/temp_{}_raw_lineitems.json'.format(filter_type)
         self._download_lineitems(tmp_outpath, filter_type, filter_ids)
         real_outpath = self._clean_lineitems_response_via_ijson(tmp_outpath, outpath)
         return real_outpath
@@ -70,12 +70,10 @@ def validate_extractor_params(params):
     schema = vp.Schema(
         {
             "extract": {
-                "lineItems": [
-                    {
-                        "filterType": vp.Any("ADVERTISER_ID", "INSERTION_ORDER_ID", "LINE_ITEM_ID"),
-                        vp.Optional("filterIds"): [vp.Coerce(int)]
-                    }
-                ]
+                "lineItems": {
+                    "filterType": vp.Any("ADVERTISER_ID", "INSERTION_ORDER_ID", "LINE_ITEM_ID"),
+                    vp.Optional("filterIds"): [vp.Coerce(int)]
+                }
             }
         }
     )
@@ -99,19 +97,19 @@ def write_manifest(outpath, manifest):
 def main(datadir, credentials, params):
     params_cleaned = validate_extractor_params(params)
     ex = DBMExtractor(**credentials)
-    for config_lineitems in params_cleaned['extract']['lineItems']:
-        logging.info("Downloading %s", config_lineitems)
-        outpath = Path(datadir) / 'out/tables/{}.csv'.format(config_lineitems['filterType'].lower())
-        ex.download_and_clean_lineitems(outpath,
-                                        config_lineitems['filterType'],
-                                        config_lineitems.get('filterIds'))
+    config_lineitems = params_cleaned['extract']['lineItems']
+    outpath = Path(datadir) / 'out/tables/lineItems.csv'
+    logging.info("Downloading %s into %s", config_lineitems, outpath)
+    ex.download_and_clean_lineitems(outpath,
+                                    config_lineitems['filterType'],
+                                    config_lineitems.get('filterIds'))
 
-        manifest_path = str(outpath) + '.manifest'
-        write_manifest(
-            manifest_path,
-            {
-                "incremental": True,
-                "primary_key": [columnize_filter_type(config_lineitems['filterType'])]
-            }
-        )
+    manifest_path = str(outpath) + '.manifest'
+    write_manifest(
+        manifest_path,
+        {
+            "incremental": True,
+            "primary_key": ['Line_Item_Id']
+        }
+    )
 
